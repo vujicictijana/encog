@@ -7,7 +7,7 @@ public class Main {
 		n.create();
 		System.out.println("Testiranje......");
 		n.test();
-		System.out.println("aa");
+		System.out.println("kraj");
 	}
 
 }
