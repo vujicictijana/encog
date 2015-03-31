@@ -8,6 +8,8 @@ import org.encog.engine.network.activation.ActivationSigmoid;
 import org.encog.ml.data.MLData;
 import org.encog.ml.data.MLDataPair;
 import org.encog.ml.data.MLDataSet;
+import org.encog.ml.data.basic.BasicMLData;
+import org.encog.ml.data.basic.BasicMLDataPair;
 import org.encog.ml.data.basic.BasicMLDataSet;
 import org.encog.neural.networks.BasicNetwork;
 import org.encog.neural.networks.layers.BasicLayer;
@@ -92,7 +94,6 @@ public class NeuralNetwork {
 	}
 
 	public void test() {
-
 		readInput(testFile, inputTest);
 		readOutput(testFile, outputTest);
 
@@ -118,6 +119,23 @@ public class NeuralNetwork {
 		}
 
 		Encog.getInstance().shutdown();
+	}
+
+	public String getResult(double[] data) {
+		MLDataPair pair = new BasicMLDataPair(new BasicMLData(data));
+
+		testSet = new BasicMLDataSet(inputTest, outputTest);
+
+		MLData output = network.compute(pair.getInput());
+		double result = output.getData(0);
+
+		Encog.getInstance().shutdown();
+		if (result > 0.75) {
+			return "relevant";
+
+		} else {
+			return "irrelevant";
+		}
 	}
 
 	public void readInput(String fileName, double[][] data) {
