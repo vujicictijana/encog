@@ -13,7 +13,7 @@ import org.encog.ml.data.basic.BasicMLDataPair;
 import org.encog.ml.data.basic.BasicMLDataSet;
 import org.encog.neural.networks.BasicNetwork;
 import org.encog.neural.networks.layers.BasicLayer;
-import org.encog.neural.networks.training.propagation.resilient.ResilientPropagation;
+import org.encog.neural.networks.training.propagation.back.Backpropagation;
 
 public class NeuralNetwork {
 	BasicNetwork network = new BasicNetwork();
@@ -67,7 +67,7 @@ public class NeuralNetwork {
 
 		trainingSet = new BasicMLDataSet(input, output);
 
-		// create a neural network, without using a factory
+		// create a neural network
 
 		network.addLayer(new BasicLayer(null, true, inputParametersNo));
 		network.addLayer(new BasicLayer(new ActivationSigmoid(), true,
@@ -78,18 +78,19 @@ public class NeuralNetwork {
 		network.reset();
 
 		// train the neural network
-		final ResilientPropagation train = new ResilientPropagation(network,
-				trainingSet);
+		// final ResilientPropagation train = new ResilientPropagation(network,
+		// trainingSet);
+		final Backpropagation train = new Backpropagation(network, trainingSet);
 
-		int epoch = 1;
+		int iteration = 1;
 
 		do {
 			train.iteration();
-			System.out
-					.println("Epoch #" + epoch + " Error:" + train.getError());
-			epoch++;
+			System.out.println("Iteration #" + iteration + " Error:"
+					+ train.getError());
+			iteration++;
 		} while (train.getError() > 0.01);
-		System.out.println(epoch);
+		System.out.println("Total iterations: " + iteration);
 		train.finishTraining();
 	}
 
@@ -102,20 +103,24 @@ public class NeuralNetwork {
 		// test the neural network
 		System.out.println("Neural Network Results:");
 
-		DecimalFormat df = new DecimalFormat("#.##");
+		DecimalFormat df = new DecimalFormat("#.###");
+
+		StringBuffer s;
 		for (MLDataPair pair : testSet) {
+			s = new StringBuffer();
 			final MLData output = network.compute(pair.getInput());
-			System.out
-					.println(pair.getInput().getData(0)
-							+ ","
-							+ pair.getInput().getData(1)
-							+ ", actual="
-							+ df.format(output.getData(0))
-							+ ",ideal="
-							+ df.format(pair.getIdeal().getData(0))
-							+ ", error="
-							+ df.format((pair.getIdeal().getData(0) - output
-									.getData(0))));
+			s.append("Input: ");
+			for (int i = 0; i < pair.getInput().size(); i++) {
+				s.append(pair.getInput().getData(i) + "; ");
+			}
+			s.append(" Output: " + df.format(output.getData(0)));
+			s.append(" Desired output: "
+					+ df.format(pair.getIdeal().getData(0)));
+			s.append(" Error: "
+					+ df.format((pair.getIdeal().getData(0) - output.getData(0))));
+
+			System.out.println(s.toString());
+
 		}
 
 		Encog.getInstance().shutdown();
